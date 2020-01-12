@@ -105,6 +105,7 @@ class InkSlides(object):
             print("PDF should be up to date. Quitting ...")
             return
 
+        """
         print("Creating PDF slides in parallel on {} workers...".format(self.num_workers))
 
         # spawn a pool of workers and set up a request queue
@@ -117,12 +118,17 @@ class InkSlides(object):
         # start workers
         for w in workers:
             w.start()
+        """
 
         # populate the queue
         self.pdf_files = []
+        to_convert = []
         for svg_file, cached in self.svg_files:
             pdf_file = self.pdf_from_svg(svg_file)
             self.pdf_files.append(pdf_file)
+            if not cached:
+                to_convert.append(svg_file)
+            """
             request_queue.put((svg_file, pdf_file, cached))
 
         # Sentinel objects to allow clean shutdown: 1 per worker.
@@ -132,6 +138,12 @@ class InkSlides(object):
         # wait for workers to be finished
         for w in workers:
             w.join()
+        """
+        if to_convert:
+            print("Converting {} slides...".format(len(to_convert)))
+            subprocess.check_call(["inkscape", "--export-type=pdf",
+                "--export-overwrite", *to_convert],
+                stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
 
         print("Merging PDF slides ...")
         self.join_slides_pdf()
