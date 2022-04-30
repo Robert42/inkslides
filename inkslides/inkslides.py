@@ -235,12 +235,12 @@ class InkSlides(object):
                 old_hash = hashlib.sha256(open(svg_path, 'rb').read()).digest()
 
             # replace text elements containing #num# with the slide number
-            for e in tmp_doc.xpath('//svg:text/svg:tspan[text()="#num#"]', namespaces=nsmap):
-                e.text = str(slide_num)
+            for e in tmp_doc.xpath('//svg:text/svg:tspan[contains(text(),"#num#")]', namespaces=nsmap):
+                e.text = e.text.replace("#num#", str(slide_num))
 
-            # replace text elements containing #num# with the slide number
-            for e in tmp_doc.xpath('//svg:text/svg:tspan[text()="#frame_num#"]', namespaces=nsmap):
-                e.text = str(frame_num)
+            # replace text elements containing #frame_num# with the frame number
+            for e in tmp_doc.xpath('//svg:text/svg:tspan[contains(text(),"#frame_num#")]', namespaces=nsmap):
+                e.text = e.text.replace("#frame_num#",str(frame_num))
 
             tmp_doc.write(svg_path)
 
