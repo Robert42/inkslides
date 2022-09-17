@@ -22,7 +22,9 @@ from multiprocessing import Queue
 
 from lxml.etree import XMLParser, parse
 
-from .inkscape import InkscapeWorker
+from tqdm import tqdm
+
+from .inkscape import InkscapeWorker, InkscapeWorkerCLI
 from .merge import MergerWrapper
 from .utils import *
 
@@ -97,6 +99,17 @@ class InkSlides(object):
 
         self.setup_temp_folder(temp)
 
+        p_input = os.path.join(self.tmp_folder, "clean.svg")
+        # select-all; clone-unlink-recursively; export-filename:no-clone.svg; export-do
+        actions = [
+            "select-all",
+            "clone-unlink-recursively",
+            f"export-filename:{p_input}",
+            "export-do"
+        ]
+        subprocess.call(["inkscape", f"--actions={';'.join(actions)}", file])
+        self.f_input = p_input
+
         print("Parsing {} ...".format(self.f_input))
         self.parse()
 
@@ -112,7 +125,7 @@ class InkSlides(object):
         workers = []
         request_queue = Queue()
         for i in range(self.num_workers):
-            workers.append(InkscapeWorker(request_queue))
+            workers.append(InkscapeWorkerCLI(request_queue))
 
         # start workers
         for w in workers:
@@ -183,7 +196,8 @@ class InkSlides(object):
         only_cached = True
         self.svg_files = list()
 
-        for frame_num, (slide_num, slide) in enumerate(self.content):
+        for frame_num, (slide_num, slide) in enumerate(tqdm(self.content,
+            desc="Extracting slides")):
 
             svg_path = '{1}/slide-{0}.svg'.format(frame_num, self.tmp_folder)
 
@@ -202,6 +216,10 @@ class InkSlides(object):
                 # add the hidden elements to the to-delete list
                 to_be_deleted = tmp_doc.xpath(
                     '/*/svg:g[@inkscape:groupmode="layer"][contains(\
+                    @style, "display:none")]',
+                    namespaces=nsmap
+                ) + tmp_doc.xpath(
+                    '/*/*/svg:g[@inkscape:groupmode="layer"][contains(\
                     @style, "display:none")]',
                     namespaces=nsmap
                 )

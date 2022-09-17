@@ -2,6 +2,27 @@ import multiprocessing
 import subprocess
 
 
+class InkscapeWorkerCLI(multiprocessing.Process):
+    def __init__(self, queue):
+        super().__init__()
+        self.queue = queue
+    def run(self):
+        for svg_file, pdf_file_name, cached in iter(self.queue.get, None):
+
+            # main working loop of the inkscape process
+            # we need to wait for ">" to see whether inkscape is ready.
+            # The variable ready keeps track of that.
+
+            if not cached:
+                command = ['inkscape', svg_file, '-o', pdf_file_name]
+                print("  Converting {0}...".format(pdf_file_name))
+                subprocess.call(command)
+
+                print("  Converted {0}".format(pdf_file_name))
+            else:
+                print("  Skipping {0}".format(pdf_file_name))
+
+
 class InkscapeWorker(multiprocessing.Process):
     def __init__(self, queue):
         super(InkscapeWorker, self).__init__()
