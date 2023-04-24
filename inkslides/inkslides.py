@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -=- encoding: utf-8 -=-
 
 """
@@ -24,9 +24,9 @@ from lxml.etree import XMLParser, parse
 
 from tqdm import tqdm
 
-from .inkscape import InkscapeWorker, InkscapeWorkerCLI
-from .merge import MergerWrapper
-from .utils import *
+from inkscape import InkscapeWorker, InkscapeWorkerCLI
+from merge import MergerWrapper
+from utils import *
 
 __author__ = "Jan Oliver Oelerich"
 __copyright__ = "Copyright 2013, Universitaet Marburg"
@@ -439,3 +439,6 @@ def main():
         i.runwatch(file=args.file, temp=args.temp)
     else:
         i.run(file=args.file, temp=args.temp)
+
+if __name__ == "__main__":
+	main()

@@ -6,10 +6,11 @@ by the layer structure of the SVG.
 
 ## Installation
 
-Clone the repository somewhere and type
-
+Assuming you want to isntall the script in "~/Applications"
 ```
-> python setup.py install
+TARGET_DIR="$HOME/Applications"
+cd "$TARGET_DIR" && git clone https://github.com/Robert42/inkslides.git
+echo "alias inkslides='$TARGET_DIR/inkslides/inkslides/inkslides.py'" >> ~/.bash_aliases
 ```
 
 ## Requirements
